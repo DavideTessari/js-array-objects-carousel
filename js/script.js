@@ -22,82 +22,130 @@
 // attivarsi sarà l'ultima e viceversa per l'ultima miniatura se l'utente clicca 
 // la freccia verso il basso.
 
-// Array degli oggetti immagine
+
 const images = [
     {
         image: 'img/01.webp',
         title: 'Marvel\'s Spiderman Miles Morale',
-        text: 'Vivi la crescita di Miles Morales, che acquisisce incredibili e nuovi poteri esplosivi per diventare il nuovo Spider-Man.',
+        text: 'Experience the rise of Miles Morales as the new hero masters incredible, explosive new powers to become his own Spider-Man.',
     }, {
         image: 'img/02.webp',
         title: 'Ratchet & Clank: Rift Apart',
-        text: 'Esplora dimensioni diverse con Ratchet e Clank mentre affrontano un malvagio imperatore proveniente da un\'altra realtà.',
+        text: 'Go dimension-hopping with Ratchet and Clank as they take on an evil emperor from another reality.',
     }, {
         image: 'img/03.webp',
         title: 'Fortnite',
-        text: "Raccogli tutti i tuoi amici e tuffati nell'epico Fortnite di Epic Games, uno scontro tra 100 giocatori che unisce saccheggi, crafting, sparatorie e caos.",
+        text: "Grab all of your friends and drop into Epic Games Fortnite, a massive 100-player face-off that combines looting, crafting, shootouts, and chaos.",
     }, {
         image: 'img/04.webp',
         title: 'Stray',
-        text: 'Perso, ferito e solo, un gatto randagio deve dipanare un antico mistero per fuggire da una città dimenticata da tempo.',
+        text: 'Lost, injured, and alone, a stray cat must untangle an ancient mystery to escape a long-forgotten city.',
     }, {
         image: 'img/05.webp',
         title: "Marvel's Avengers",
-        text: "Marvel's Avengers è un epico gioco di azione e avventura in terza persona che unisce una storia originale e cinematografica a modalità single-player e co-op."
+        text: 'Marvel\'s Avengers is an epic, third-person, action-adventure game that combines an original, cinematic story with single-player and co-operative gameplay.',
     }
 ];
 
 let activeItem = 0;
 
-// Selezionamento dei contenitori per le immagini e le miniature
+// Selezioniamo i contenitori delle immagini e delle miniature
 const imagesContainer = document.querySelector('.images-container');
 const thumbnailsContainer = document.querySelector('.thumbnails-container');
 
-// Creazione dinamica degli elementi HTML per le immagini e le miniature
-images.forEach((image, index) => {
-    // Creazione dell'elemento immagine
-    const newImage = document.createElement('div');
-    newImage.classList.add('image');
-    if (index === activeItem) newImage.classList.add('active');
-    newImage.innerHTML = `<img src="${image.image}" alt="">`;
-    imagesContainer.appendChild(newImage);
+// Funzione per creare un'immagine con il titolo e il testo
+function createImageElement(imageData, index) {
+    const imageElement = document.createElement('div');
+    imageElement.classList.add('image');
+    if (index === activeItem) {
+        imageElement.classList.add('active');
+    }
 
-    // Creazione dell'elemento miniature
-    const newThumbnail = document.createElement('div');
-    newThumbnail.classList.add('thumbnail');
-    if (index === activeItem) newThumbnail.classList.add('active');
-    newThumbnail.innerHTML = `<img src="${image.image}" alt="">`;
-    thumbnailsContainer.appendChild(newThumbnail);
-});
+    const img = document.createElement('img');
+    img.src = imageData.image;
+    img.alt = imageData.title;
 
-// Selezionamento di tutte le immagini e miniature
-const allImages = document.querySelectorAll('.image');
-const allThumbnails = document.querySelectorAll('.thumbnail');
+    const title = document.createElement('h2');
+    title.textContent = imageData.title;
+    title.classList.add('title');
 
-// Selezione dell'elemento titolo e del paragrafo
-const titleElement = document.querySelector('.info-container h2');
-const textElement = document.querySelector('.info-container p');
+    const text = document.createElement('p');
+    text.textContent = imageData.text;
+    text.classList.add('text');
 
-// Aggiunta di eventi per le frecce di navigazione
-document.querySelector('.arrow.next').addEventListener('click', function() {
-    navigateCarousel(1); // Naviga avanti
-});
+    imageElement.appendChild(img);
+    imageElement.appendChild(title);
+    imageElement.appendChild(text);
 
-document.querySelector('.arrow.previous').addEventListener('click', function() {
-    navigateCarousel(-1); // Naviga indietro
-});
-
-// Funzione per navigare nel carosello
-function navigateCarousel(direction) {
-    allImages[activeItem].classList.remove('active');
-    allThumbnails[activeItem].classList.remove('active');
-    // Calcola il nuovo indice dell'elemento attivo
-    activeItem = (activeItem + direction + images.length) % images.length;
-    allImages[activeItem].classList.add('active');
-    allThumbnails[activeItem].classList.add('active');
-    
-    // Aggiorna il titolo e il testo in basso a destra
-    titleElement.textContent = images[activeItem].title;
-    textElement.textContent = images[activeItem].text;
+    return imageElement;
 }
 
+// Funzione per navigare avanti nel carosello
+function nextSlide() {
+    const currentImage = imagesContainer.querySelector('.image.active');
+    const nextIndex = (activeItem + 1) % images.length;
+    const nextImage = imagesContainer.children[nextIndex];
+    currentImage.classList.remove('active');
+    nextImage.classList.add('active');
+    activeItem = nextIndex;
+
+    // Aggiorna l'opacità delle miniature
+    allThumbnails.forEach((thumbnail, index) => {
+        if (index === activeItem) {
+            thumbnail.classList.add('active');
+        } else {
+            thumbnail.classList.remove('active');
+        }
+    });
+}
+
+// Funzione per navigare indietro nel carosello
+function prevSlide() {
+    const currentImage = imagesContainer.querySelector('.image.active');
+    const prevIndex = (activeItem - 1 + images.length) % images.length;
+    const prevImage = imagesContainer.children[prevIndex];
+    currentImage.classList.remove('active');
+    prevImage.classList.add('active');
+    activeItem = prevIndex;
+
+    // Aggiorna l'opacità delle miniature
+    allThumbnails.forEach((thumbnail, index) => {
+        if (index === activeItem) {
+            thumbnail.classList.add('active');
+        } else {
+            thumbnail.classList.remove('active');
+        }
+    });
+}
+
+// Creiamo gli elementi HTML dinamicamente
+images.forEach((imageData, index) => {
+    const imageElement = createImageElement(imageData, index);
+    const thumbnailElement = document.createElement('div');
+    thumbnailElement.classList.add('thumbnail');
+    if (index === activeItem) {
+        thumbnailElement.classList.add('active');
+    }
+
+    thumbnailElement.addEventListener('click', () => {
+        changeSlide(index);
+    });
+
+    imagesContainer.appendChild(imageElement);
+    thumbnailsContainer.appendChild(thumbnailElement);
+
+    // Aggiungiamo la miniatura anche nell'elemento miniature
+    const thumbnailImg = document.createElement('img');
+    thumbnailImg.src = imageData.image;
+    thumbnailImg.alt = imageData.title;
+    thumbnailElement.appendChild(thumbnailImg);
+});
+
+// Selezionamento di tutte le miniature
+const allThumbnails = document.querySelectorAll('.thumbnail');
+
+// Gestione del click sulla freccia successiva
+document.querySelector('.arrow.next').addEventListener('click', nextSlide);
+
+// Gestione del click sulla freccia precedente
+document.querySelector('.arrow.previous').addEventListener('click', prevSlide);
